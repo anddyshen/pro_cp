@@ -1,0 +1,1 @@
+create table ball_history (xiang,kjqh,kjrq,kjhm,yizs,yijj,erzs,erjj,sanzs,sanjj,sizs,sijj,wuzs,wujj,liuzs,liujj,xse,jc,gg)
