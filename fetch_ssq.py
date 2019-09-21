@@ -2,6 +2,7 @@
 import requests
 import sqlite3
 import datetime
+import pymysql
 from lxml import etree
 
 starttime = datetime.datetime.now()
@@ -12,7 +13,8 @@ print(f"每次测试前写入文件清空，成功\n\n")
 
 #conn = sqlite3.connect(r"./db/ssq.db")
 #conn = sqlite3.connect(r"C:\mypyfiles\projects\more_ex\pro_ssq\db\ssq.db")
-conn = sqlite3.connect(r"C:\Users\Anddy\Documents\GitHub\MyPyFiles\Projects\more_ex\pro_ssq\db\ssq.db")
+#conn = sqlite3.connect(r"C:\Users\Anddy\Documents\GitHub\MyPyFiles\Projects\more_ex\pro_ssq\db\ssq.db")
+conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', charset='utf8')
 
 cur = conn.cursor()
 try:
@@ -162,19 +164,20 @@ for i in range(1,84):
             print(f"第{(i-1)*30+k+1}条内容，正添加至数据库 \n\n")# {db_row} \n\n")
         #conn = sqlite3.connect(r"./db/ssq.db")
         #conn = sqlite3.connect(r"C:\mypyfiles\projects\more_ex\pro_ssq\db\ssq.db")
-        conn = sqlite3.connect(r"C:\Users\Anddy\Documents\GitHub\MyPyFiles\Projects\more_ex\pro_ssq\db\ssq.db")
+        #conn = sqlite3.connect(r"C:\Users\Anddy\Documents\GitHub\MyPyFiles\Projects\more_ex\pro_ssq\db\ssq.db")
+        #conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', port='3306',charset='utf8')
+        conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', charset='utf8')
         cur = conn.cursor()
         cur1 = conn.cursor()
         cur2 = conn.cursor()
 
         try:
-            sql = 'INSERT INTO ball_history(xiang,kjqh,kjrq,kjhmhq,kjhmlq,yizs,yijj,erzs,erjj,sanzs,sanjj,sizs,sijj,wuzs,wujj,liuzs,liujj,xse,jc,gg) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-            cur.execute(sql,(db_row))
-            sql1 = 'INSERT INTO ball_detail_history(kjqh,r1,r2,r3,r4,r5,r6,b1) VALUES(?,?,?,?,?,?,?,?)'
-            cur1.execute(sql1,(db_ball_f))
-            conn.commit()
-            sql2 = 'INSERT INTO ball_table(kjqh,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20,r21,r22,r23,r24,r25,r26,r27,r28,r29,r30,r31,r32,r33,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-            cur2.execute(sql2,(db_ball_t))
+            sql = 'INSERT INTO ball_history(xiang,kjqh,kjrq,kjhmhq,kjhmlq,yizs,yijj,erzs,erjj,sanzs,sanjj,sizs,sijj,wuzs,wujj,liuzs,liujj,xse,jc,gg) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+            cur.execute(sql,db_row)
+            sql1 = 'INSERT INTO ball_detail_history(kjqh,r1,r2,r3,r4,r5,r6,b1) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)'
+            cur1.execute(sql1, db_ball_f)
+            sql2 = 'INSERT INTO ball_table(kjqh,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20,r21,r22,r23,r24,r25,r26,r27,r28,r29,r30,r31,r32,r33,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+            cur2.execute(sql2, db_ball_t)
             conn.commit()
             if ((i-1)*30+k+1) % 50 == 0:
                 print(f"第{(i-1)*30+k+1}条详细信息插入成功\n\n")               
@@ -199,7 +202,7 @@ for i in range(1,84):
 
 
     print(f"完成第{i}页\n")
-    if i % 80 == 0:
+    if i % 85 == 0:
         input("按回车键继续\n")
 
 endtime = datetime.datetime.now()
