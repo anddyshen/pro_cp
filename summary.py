@@ -63,8 +63,8 @@ print(f"你输入的红球号码是：{red_ball}")
 
 blue_ball = []
 for i in range(1,6):
-    blue_ball_t = int(input(f"请输入一个蓝球号码："))    
-    if isblueok(blue_ball_t) == True:
+    blue_ball_t = input(f"请输入一个蓝球号码：")
+    if isblueok(blue_ball_t) == True or blue_ball_t == "":
         blue_ball.append(blue_ball_t)
         print(f"蓝球号码为{blue_ball}")
         break
@@ -76,20 +76,30 @@ for i in range(1,6):
             print(f"输入次数超过{cs}次，退出")
             break
 
-all_ball = []
 
-all_ball.append(red_ball)
-all_ball.append(blue_ball)
+for i in range(len(red_ball)-1, 0, -1):
+    if red_ball[i] == "":
+        red_ball.pop(i)
+    else:
+        pass
 
-print(f"你输入的红+蓝球号码是：{all_ball}")
+
+my_all_ball = []
+
+my_all_ball.append(red_ball)
+my_all_ball.append(blue_ball)
+
+print(f"你最终输入的红+蓝球号码是：{my_all_ball}")
 
 
-
+input(f"你想对比此前多少期的数据：<2400")
 try:
-    sql = 'select * from ball_detail where kjqh = 0000'
+    sql = 'SELECT count(kjqh) FROM ball_history '
     cur.execute(sql)
     conn.commit()
-    print(f"读取了所有确认的期号号码的数据\n\n")
+    result0 = cur.fetchone()
+    print(f"数据库共有 {result0} 条数据\n\n")
+
 except Exception as e:
     print(e)
     print(f"读取数据库失败\n\n")
@@ -97,3 +107,23 @@ except Exception as e:
 finally:
     cur.close()
     conn.close()
+
+
+
+try:
+    sql = 'SELECT * FROM ball_history ORDER BY kjqh DESC LIMIT 15'
+    cur.execute(sql)
+    conn.commit()
+    result1 = cur.fetchone()
+
+
+    print(f"读取了所有确认的期号号码的一条数据 {result1}\n\n")
+
+except Exception as e:
+    print(e)
+    print(f"读取数据库失败\n\n")
+    conn.rollback()
+finally:
+    cur.close()
+    conn.close()
+
