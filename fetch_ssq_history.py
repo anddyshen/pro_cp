@@ -1,6 +1,6 @@
 #from sys import argv
+#import sqlite3
 import requests
-import sqlite3
 import datetime
 import pymysql
 from lxml import etree
@@ -18,9 +18,9 @@ conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database=
 
 cur = conn.cursor()
 try:
-    sql = 'delete from ball_history'
-    sql2 = 'delete from ball_detail_history'
-    sql3 = 'delete from ball_table'
+    sql = 'delete from rewards_history'
+    sql2 = 'delete from ball_history'
+    sql3 = 'delete from ball_detail'
     cur.execute(sql)
     cur.execute(sql2)
     cur.execute(sql3)
@@ -45,7 +45,7 @@ for i in range(1,84):
     tr_ball_list = res_html.xpath('//tbody/tr/td/font')
     
     #列出取得所有除号码外的所有数据组成一个最大的一维数组
-    row_list = []
+    row_list = [] #取回后的所有元素，以一维列表形式存储
     for tr in tr_list:
         row_list.append(str(tr.text))  
     
@@ -56,12 +56,12 @@ for i in range(1,84):
         total_ball = len(ball_row_list)
        
     ball_temp_list = []
-    ball_list = []
+    ball_list = [] #当前页下的所有中奖号码的二维列表，以红球（字符串）+篮球位形式，准备写入相同结构的数据库
     ball_detail_temp = []
-    ball_detail = []
-    ball_detail_f = []
+    ball_detail = [] #当前页下以每一期为结果，开奖期与所有球号码为元素的临时列表
+    ball_detail_f = [] #当前页下以开奖期与所有球号码为元素的一维列表，准备写入相同结构的数据库表
     ball_t_temp = []
-    ball_t = []
+    ball_t = [] #中奖号码的以 中奖期号+33红+16蓝 为形式的二维列表，准备写入相同结构的数据库表
 
     for b in range(0, len(ball_row_list), 2):
         for c in range(0,2):
@@ -172,11 +172,11 @@ for i in range(1,84):
         cur2 = conn.cursor()
 
         try:
-            sql = 'INSERT INTO ball_history(xiang,kjqh,kjrq,kjhmhq,kjhmlq,yizs,yijj,erzs,erjj,sanzs,sanjj,sizs,sijj,wuzs,wujj,liuzs,liujj,xse,jc,gg) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+            sql = 'INSERT INTO rewards_history(xiang,kjqh,kjrq,kjhmhq,kjhmlq,yizs,yijj,erzs,erjj,sanzs,sanjj,sizs,sijj,wuzs,wujj,liuzs,liujj,xse,jc,gg) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
             cur.execute(sql,db_row)
-            sql1 = 'INSERT INTO ball_detail_history(kjqh,r1,r2,r3,r4,r5,r6,b1) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)'
+            sql1 = 'INSERT INTO ball_history(kjqh,r1,r2,r3,r4,r5,r6,b1) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)'
             cur1.execute(sql1, db_ball_f)
-            sql2 = 'INSERT INTO ball_table(kjqh,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20,r21,r22,r23,r24,r25,r26,r27,r28,r29,r30,r31,r32,r33,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
+            sql2 = 'INSERT INTO ball_detail(kjqh,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20,r21,r22,r23,r24,r25,r26,r27,r28,r29,r30,r31,r32,r33,b1,b2,b3,b4,b5,b6,b7,b8,b9,b10,b11,b12,b13,b14,b15,b16) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'
             cur2.execute(sql2, db_ball_t)
             conn.commit()
             if ((i-1)*30+k+1) % 50 == 0:
