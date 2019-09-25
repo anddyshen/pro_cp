@@ -91,39 +91,3 @@ my_all_ball.append(blue_ball)
 
 print(f"你最终输入的红+蓝球号码是：{my_all_ball}")
 
-
-input(f"你想对比此前多少期的数据：<2400")
-try:
-    sql = 'SELECT count(kjqh) FROM ball_history '
-    cur.execute(sql)
-    conn.commit()
-    result0 = cur.fetchone()
-    print(f"数据库共有 {result0} 条数据\n\n")
-
-except Exception as e:
-    print(e)
-    print(f"读取数据库失败\n\n")
-    conn.rollback()
-finally:
-    cur.close()
-    conn.close()
-
-
-
-try:
-    sql = 'SELECT * FROM ball_history ORDER BY kjqh DESC LIMIT 15'
-    cur.execute(sql)
-    conn.commit()
-    result1 = cur.fetchone()
-
-
-    print(f"读取了所有确认的期号号码的一条数据 {result1}\n\n")
-
-except Exception as e:
-    print(e)
-    print(f"读取数据库失败\n\n")
-    conn.rollback()
-finally:
-    cur.close()
-    conn.close()
-
