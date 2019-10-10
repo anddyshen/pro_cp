@@ -1,34 +1,23 @@
+# -*- coding:utf-8 -*-
+
 import my_ball
 import history_data_load
 import datetime
 import pymysql
 
+a = ""
+#输入自己的号码
+my_input = my_ball.MyBall.input_my_ball(a)#class 中 self的参数传递尚未搞清楚，先用为空的a作为参数传入，日后修改，暂时使用无问题
+#取得需要的开奖期数的号码
+rewards_ball_list = history_data_load.LoadSsqEngine.load_history(a)#同上
 
-my_input = my_ball.input_my_ball()
-
-rewards_ball_list = history_data_load.load_history()
-
-
-
-
-# rewards_ball_m = [['2019110', '01', '18', '22', '26', '27', '28', '08'], ['2019109', '03', '06', '07', '17', '28', '31', '10'], ['2019108', '07', '13', '19', '22', '25', '32', '13']]
-# rewards_ball_t1 = ['2019110', '01', '18', '22', '26', '27', '28', '08']
-# rewards_ball_m1 = [['2019110', '01', '18', '22', '26', '27', '28', '08'], ['2019109', '01', '18', '22', '26', '27', '30', '08'], ['2019108','01', '18', '23', '26', '27', '28', '05'], ['2019107','03', '11', '22', '26', '27', '28', '01']]
-
-
-#m0 = my_ball_list_ex0 = [['06', '20', '26', '17', '33', '12'], ['08']]
-# m0 = my_ball_list_ex0 = [[ '01','18','22', '26', '27', '28'], ['08']]
-# m1 = my_ball_list_ex1 = [['02', '06' ,'15','28'],['10']]
-# m2 = my_ball_list_ex2 = [['01', '22', '26','28'], ['']]
-# m3 = my_ball_list_ex2 = [[['01', '18', '22', '26', '27', '28'], ['08']], [['12', '23', '06'], ['']], [['01', '18', '22', '26', '27', '28'], ['05']],[['01', '18', '22', '26', '27'], ['08']],[['03', '06', '07', '17', '28', '31'], ['10']], [['07', '13', '19', '22', '25', '32'], ['13']]]
-# m4 = my_ball_list_ex2 = [[['01', '18', '22', '26', '27', '28'], ['08']], [['12', '23', '06'], ['']], [['01', '18', '22', '26', '27', '28'], ['05']],[['01', '18', '22', '26', '27'], ['08']],[['03', '06', '07', '17', '28', '31'], ['10']], [['07', '13', '19', '22', '25', '32'], ['13']]]
 
 awards_level = ""
 cal_r = ""
 match_count = 0
 awards_count = 0
   
-def rewards_level(red_ball,blue_ball):
+def rewards_level(red_ball,blue_ball):#奖项对比
     rewards_level = 0
 
     if red_ball == 6 and blue_ball == 1:
@@ -56,11 +45,7 @@ def rewards_level(red_ball,blue_ball):
                                     rewards_level = 6
 
 
-
     return rewards_level
-
-
-
 
 def rewards_cal(rewards_ball,my_ball):#单期对奖，取本人选择号码与对应奖期对奖，得到奖结果
     red_ball = 0
@@ -115,4 +100,4 @@ for u in range(0,len(award_results_t)):
 if awards_count == 0:
     print(f"很遗憾你的号码没有中奖\n\n")
 else:
-    print(f" 恭喜 , 你中了 {print_r} \n  共  {y} 注奖项，最大奖项为 {max_awards} 等奖 有 {max_awards_num} 注\n\n")
+    print(f" 恭喜 , 你中了 {print_r} \n  共  {y} 注奖项，最大奖项为 {max_awards} 等奖 共中得 {max_awards_num} 注\n\n")

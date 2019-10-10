@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 from random_num import *
 
 a_ball = GenEngine()

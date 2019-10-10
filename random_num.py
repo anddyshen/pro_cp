@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 #自动随机生成双色球号码
 import random
 from textwrap import dedent

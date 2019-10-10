@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 #from sys import argv
 #import sqlite3
 import requests
@@ -7,25 +9,62 @@ from lxml import etree
 
 starttime = datetime.datetime.now()
 
-f1 = open('ssq.txt','w')
-f1.truncate()
-print(f"每次测试前写入文件清空，成功\n\n")
+def write_txt():
+    f1 = open('ssq.txt','w')
+    f1.truncate()
+    print(f"每次测试前写入文件清空，成功\n\n")
+    try:
+        f1 = open('ssq.txt','a',encoding='utf-8')
+        db_row_str = " | ".join(db_row)
+        f1.writelines(db_row_str)
+        f1.writelines("\n")
+    except FileExistsError as ex:
+            print(ex)
+            print('文件不存在')
+    finally:
+            f1.close()
 
-#conn = sqlite3.connect(r"./db/ssq.db")
+#conn = sqlite3.connect(r"./db/ssq.db")#sqlite语句
 #conn = sqlite3.connect(r"C:\mypyfiles\projects\more_ex\pro_ssq\db\ssq.db")
 #conn = sqlite3.connect(r"C:\Users\Anddy\Documents\GitHub\MyPyFiles\Projects\more_ex\pro_ssq\db\ssq.db")
 conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', charset='utf8')
-
 cur = conn.cursor()
-try:
-    sql = 'delete from rewards_history'
-    sql2 = 'delete from ball_history'
-    sql3 = 'delete from ball_detail'
-    cur.execute(sql)
-    cur.execute(sql2)
-    cur.execute(sql3)
+
+
+
+
+def db_reset():#测试时用于清空删除全部库后重置
+    try: 
+        sql = 'delete from rewards_history'
+        sql2 = 'delete from ball_history'
+        sql3 = 'delete from ball_detail'
+        cur.execute(sql)
+        cur.execute(sql2)
+        cur.execute(sql3)
+        conn.commit()
+        print(f"测试前数据库重置清空，成功\n\n")
+    except Exception as e:
+        print(e)
+        print(f"数据库清空失败\n\n")
+        conn.rollback()
+    finally:
+        cur.close()
+        conn.close()
+    
+
+
+try: #每次对比数据库最新数据
+    sql = 'SELECT count(kjqh) FROM ball_history ' #数据库内记录总数
+    sql2 = "SELECT * FROM ball_history ORDER BY kjqh DESC LIMIT 1"#数据库内最新一期期数
+    cur.execute(sql0)
     conn.commit()
-    print(f"每次测试前数据库清空，成功\n\n")
+    result0 = cur.fetchone()
+    cur.execute(sql2)
+    conn.commit()
+    result1 = cur.fetchall()
+    result1 = result1[0][1]
+
+    print(f"对比奖期前数据库操作，成功\n\n")
 except Exception as e:
     print(e)
     print(f"数据库清空失败\n\n")
@@ -189,20 +228,19 @@ for i in range(1,84):
             cur.close()
             conn.close()
      
-        try:
-            f1 = open('ssq.txt','a',encoding='utf-8')
-            db_row_str = " | ".join(db_row)
-            f1.writelines(db_row_str)
-            f1.writelines("\n")
-        except FileExistsError as ex:
-                print(ex)
-                print('文件不存在')
-        finally:
-                f1.close()   
+    #与当前页最新一条比较，如果相同则退出，如记录> 1，取最大几条写入数据库，
+    #如>30本页全部写入数据库后跳出，并前往下一页继续.如相差 ==1则前往官网抓取调取记录，返回值为0时，停止。
+    def compare_lastest_record():
+        if x - k == 1:
+            result1 - r = xxx
+            print("已经将最新的{x}条开奖结果记入数据库")
+        else:
+            print("当前已经是最新的数据，无需更新")
 
 
-    print(f"完成第{i}页\n")
-    if i % 85 == 0:
+
+    print(f"完成抓取第{i}页，并写入\n")
+    if i % 100 == 0:#隔几页停顿一次，>84为无需停顿
         input("按回车键继续\n")
 
 endtime = datetime.datetime.now()
