@@ -50,8 +50,12 @@ class LoadSsqEngine(object):
 
         conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', charset='utf8')
         cur = conn.cursor()
-        c_qty = int(input(f"最新一期为 {result2[0][1]} 期，你想对比之前多少期的数据 :>>"))
+        c_qty = int(input(f"最新一期为 {result2[0][1]} 期，共 {result0[0]} 条记录，你想对比之前多少期的数据 :>>"))
 
+        if c_qty > result0[0]:
+            print(f"数据库内共有 {result0[0]} 条记录，您输入{c_qty}已超出上限，按最大记录进行搜索对比")
+            c_qty =result0[0]
+        
         try:
             sql = 'SELECT * FROM ball_history ORDER BY kjqh DESC LIMIT '+ str(c_qty)
             cur.execute(sql)
