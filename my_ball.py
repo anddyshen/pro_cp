@@ -48,6 +48,7 @@ class MyBall(object):
 
         for i in range(1,20):
             a = input(f"请输入第{x}个红球号码:")
+            a = int(a)
 
             if MyBall.isredok(self,a)== True or a == "":
                 if MyBall.isrepeat(self,a,red_ball) == True:
@@ -69,6 +70,7 @@ class MyBall(object):
         blue_ball = []
         for i in range(1,6):
             blue_ball_t = input(f"请输入一个蓝球号码：")
+            blue_ball_t = int(blue_ball_t)
             if MyBall.isblueok(self,blue_ball_t) == True or blue_ball_t == "":
                 blue_ball.append(blue_ball_t)
                 print(f"蓝球号码为{blue_ball}")

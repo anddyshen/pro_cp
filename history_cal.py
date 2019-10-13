@@ -11,21 +11,19 @@ starttime = datetime.datetime.now()
 # response = response.text
 # selector = etree.HTML(response)
 
-def cal_ball_in_x():
+
+def load_data():
 
     conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', charset='utf8')
     cur = conn.cursor()
 
-    ball_rpt= input(f"请问需要查找红球连续出现几次（<=6）：")
-    if int(ball_rpt) > 6:
-        ball_rpt= input(f"请问需要查找红球连续出现几次（<=6）：")
-    c_qty_input = input(f"请问需要在之前的多少期内查找：")
-
     try:
-        sql = 'SELECT * FROM ball_history ORDER BY kjqh DESC LIMIT '+ str(c_qty_input)
-        cur.execute(sql)
+        #sql = 'SELECT * FROM ball_history ORDER BY kjqh DESC LIMIT '+ str(c_qty_input)
+        #sql1 = 'SELECT kjqh,r1,r2,r3,r4,r5,r6,b1 FROM ball_history ORDER BY kjqh DESC LIMIT '+ str(c_qty_input)
+        sql1 = 'SELECT kjqh,r1,r2,r3,r4,r5,r6,b1 FROM ball_history ORDER BY kjqh DESC '
+        cur.execute(sql1)
         conn.commit()
-        result0 = cur.fetchall()
+        sql_result0 = cur.fetchall()
         #print(result0)
     except Exception as e:
         print(e)
@@ -35,25 +33,46 @@ def cal_ball_in_x():
         cur.close()
         conn.close()
 
+    return sql_result0
 
+
+
+def cal_ball_in_x():
+    result0 = load_data()
+    result_x = []
     rpt_array = []
     ball_rpt_sum = 0
     rpt_array_t = []
     rpt_array_s = []
     rpt_array_t2 = []
     rpt_array_s1 = []
-    rpt_array_2bx2 = []
     rpt_array_sum = []
     b2x2red = 0
+
+    ball_rpt= input(f"请问需要查找红球连续出现几次（<=6）：")
+    if int(ball_rpt) > 6 and int(ball_rpt) < 1 :
+        ball_rpt = input(f"输入错误，请问需要查找红球连续出现几次（<=6）：")
+    c_qty_input = input(f"请问需要在之前的多少期内查找：")
+    starttime = datetime.datetime.now()
+
+
+
+    for j in range(0,len(result0)):
+        result_0 = list(result0[j])
+        result_x.append(result_0)
+
     for j in range(0,int(c_qty_input)):
-        for i in range(1,7):
-            if int(result0[j][i*2+2]) - int(result0[j][i*2]) == 1 :#如果相邻号码相差1，则为连续数，加入待整理临时数组
+        for i in range(1,6):
+            if int(result_x[j][i+1]) - int(result_x[j][i]) == 1 :#如果相邻号码相差1，则为连续数，加入待整理临时数组
                 if len(rpt_array_t) == 0:
-                    rpt_array_t.append(result0[j][1] + " 期 : ")
-                    rpt_array_t.append(result0[j][i*2])
-                    rpt_array_t.append(result0[j][i*2+2])         
+                    rpt_array_t.append(result_x[j][0] + " 期 : ")
+                    rpt_array_t.append(result_x[j][i])
+                    rpt_array_t.append(result_x[j][i+1])         
                 else:
-                    rpt_array_t.append(result0[j][i*2 + 2])
+                    rpt_array_t.append(result_x[j][i+1])
+                if i == 5:#最后两位为连续号码的的话，需要强制添加至列表，并清空临时列表
+                    rpt_array.append(rpt_array_t)
+                    rpt_array_t = []
             else:#如果不是连续数字，原来列表数组清零，空列表传递给下一次使用
                 if rpt_array_t != []:
                     rpt_array.append(rpt_array_t)
@@ -61,7 +80,7 @@ def cal_ball_in_x():
         
     #print(rpt_array)
 
-    if int(ball_rpt) > 2:
+    if int(ball_rpt) > 2:#出现连续3次以上的算法
         for k in range(0,len(rpt_array)):
             if len(rpt_array[k]) - 1 == int(ball_rpt):
                 rpt_array_sum.append(rpt_array[k])
@@ -72,7 +91,6 @@ def cal_ball_in_x():
                 rpt_array_s = rpt_array[k-1] + rpt_array[k] 
                 rpt_array_s.pop(3)
                 rpt_array_sum.append(rpt_array_s)
-                
             else:
                 if len(rpt_array[k]) == 3 :
                     rpt_array_t2.append(rpt_array[k])
@@ -101,6 +119,9 @@ def cal_ball_in_x():
     newest  = ""#最近该现象的期号
     Min_show = ''#所有结果中出现的最小期数间距
     Max_show = ''#所有结果中出现的最大期数间距
+
+
+
 
     a=""
     b=""
@@ -135,36 +156,63 @@ def cal_ball_in_x():
                
                 print(f"{c} --{j*2+1} 项--第{j+1}行--{j*2+2} 项-- {d}")
        
-
+    endtime = datetime.datetime.now()
     return rpt_array_sum
-# reds = []
-# blues = []
-# for i in selector.xpath('//tr[@class="t_tr1"]'):
-#     datetime = i.xpath('td/text()')[0]
-#     red = i.xpath('td/text()')[1:7]
-#     blue = i.xpath('td/text()')[7]
-#     for i in red:
-#         reds.append(i)
-#     blues.append(blue)
 
-# s_blues = Series(blues)
-# s_blues = s_blues.value_counts()
-# s_reds = Series(reds)
-# s_reds = s_reds.value_counts()
-# print(s_blues)
-# print(s_reds)
 
-# labels = s_blues.index.tolist()
-# sizes = s_blues.values.tolist()
-# rect = plt.bar(range(len(sizes)) , sizes , tick_label = labels)
-# plt.show()
+def count_num():
+    reds = []
+    blues = []
+    resultx = []
+    result1 = []
+    starttime = datetime.datetime.now()
+    result0 = load_data()
+    for j in range(0,len(result0)):
+        resultx = list(result0[j])
+        result1.append(resultx)
 
-ask_if_con = input("是否继续查找其他相关数据,quit退出，其他任意键继续")
-if ask_if_con == "quit":
-    exit()
-else:
+    for i in range(0,len(result1)):
+        red = result1[i][1:6]
+        blue = result1[i][7]
+        for i in red:
+            reds.append(i)
+        blues.append(blue)
+
+
+    s_blues = Series(blues)
+    s_blues = s_blues.value_counts()
+    s_reds = Series(reds)
+    s_reds = s_reds.value_counts()
+    print(s_blues)
+    print(s_reds)
+
+    labels = s_blues.index.tolist()
+    sizes = s_blues.values.tolist()
+    rect = plt.bar(range(len(sizes)) , sizes , tick_label = labels)
+    plt.show()
+
+    endtime = datetime.datetime.now()
+
+    return s_reds,s_blues,rect
+
+
+if __name__ == "__main__":
+
     cal_ball_in_x()
+    ask_if_ctn = input("是否继续查找其他相关数据,quit退出，其他任意键继续 \n")
+    if ask_if_ctn == "quit":
+        pass
+    else:
+        cal_ball_in_x()
+    
+    ask_if_ctn = input("是否进行全部数字统计,quit退出，其他任意键继续 \n")
+    if ask_if_ctn == "quit":
+        exit()
+    else:
+        count_num()
+
+
 
 endtime = datetime.datetime.now()
-total_times = (endtime - starttime).seconds 
+total_times = (endtime - starttime) #.seconds 
 print(f"本次执行共耗时： {total_times} 秒")  
