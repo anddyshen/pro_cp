@@ -47,55 +47,31 @@ def db_clean():#测试时用于清空删除全部库后重置
         conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
         cur = conn.cursor()
         sql = 'delete from rewards_history'
-        cur.execute(sql)
-        conn.commit()
-        print(f"rewards_history 数据库重置清空，成功\n\n")
-    except Exception as e:
-        print(e)
-        print(f"rewards_history 数据库清空失败\n\n")
-        conn.rollback()
-    finally:
-        cur.close()
-        conn.close()
-
-    try: 
-        conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
-        cur = conn.cursor()
         sql2 = 'delete from ball_history'
-        cur.execute(sql2)
-        conn.commit()
-        print(f"ball_history 数据库重置清空，成功\n\n")
-    except Exception as e:
-        print(e)
-        print(f" ball_history 数据库清空失败\n\n")
-        conn.rollback()
-    finally:
-        cur.close()
-        conn.close()
-
-    try: 
-        conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
-        cur = conn.cursor()
         sql3 = 'delete from ball_detail'
         cur.execute(sql)
+        conn.commit()
         cur.execute(sql2)
+        conn.commit()
         cur.execute(sql3)
         conn.commit()
-        print(f" ball_detail 数据库重置清空，成功\n\n")
+        print(f"rewards_history ball_history ball_detail 数据库重置清空，成功\n\n")
     except Exception as e:
         print(e)
-        print(f"ball_detail 数据库清空失败\n\n")
+        print(f"rewards_history ball_history ball_detail 数据库清空失败\n\n")
         conn.rollback()
     finally:
         cur.close()
         conn.close()
+
+
     
 def db_backup():
     #conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp_backup', charset='utf8')
-    conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
+    conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp_backup', charset='utf8')
     cur = conn.cursor()
     try: #每次对比数据库最新数据
-        sql0 = 'use cp'
+        sql0 = 'use cp_backup'
         sql_bk_rewards_history = 'create table '+ db_rewards_history_backup +' SELECT * FROM cp.rewards_history '
         sql_bk_ball_history = 'create table '+ db_ball_history_backup +' SELECT * FROM cp.ball_history '
         sql_bk_ball_detail = 'create table '+ db_ball_detail_backup +' SELECT * FROM cp.ball_detail'
@@ -128,6 +104,7 @@ def db_compare():
             db_lastest_kjqh = db_total[0][1]
         else:
             db_lastest_kjqh = 0
+            return db_lastest_kjqh
 
         #print(f"对比奖期前数据库操作，成功\n\n")
     except Exception as e:
@@ -287,7 +264,7 @@ def fetch_sp_page():#增量补齐开奖号码,抓取写入遗漏号码
 
                 # if ((i-1)*30+k+1) % 60 == 0:
                 #     print(f"第{(i-1)*30+k+1}条内容，正准备添加至数据库 \n\n")# {db_row} \n\n")
-                conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', charset='utf8')
+                conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
                 cur = conn.cursor()
                 cur1 = conn.cursor()
                 cur2 = conn.cursor()
@@ -315,17 +292,19 @@ def fetch_sp_page():#增量补齐开奖号码,抓取写入遗漏号码
         #如>30本页全部写入数据库后跳出，并前往下一页继续.如相差 ==1则前往官网抓取调取记录，返回值为0时，停止。
 
 def fetch_all():
-    page_max = db_compare_result[0]
-    for i in range(1,page_max):
+    response = requests.get(f"https://www.17500.cn/widget/_ssq/kjlist/p/1.html")
+    res_html = etree.HTML(response.text)
+    max_page = res_html.xpath('//div/a[@class="end"]') 
+
+    for i in range(1,int(max_page[0].text)):
         #print(f"第{i}页页眉\n\n")
-    
         response = requests.get(f"https://www.17500.cn/widget/_ssq/kjlist/p/{i}.html")
         res_html = etree.HTML(response.text)
-        
+
         tr_list = res_html.xpath('//tbody/tr/td')
         tr_ball_list = res_html.xpath('//tbody/tr/td/font')
-        
         #列出取得所有除号码外的所有数据组成一个最大的一维数组
+
         row_list = [] #取回后的所有元素，以一维列表形式存储
         for tr in tr_list:
             row_list.append(str(tr.text))  
