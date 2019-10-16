@@ -91,7 +91,8 @@ def db_clean():#测试时用于清空删除全部库后重置
         conn.close()
     
 def db_backup():
-    conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp_backup', charset='utf8')
+    #conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp_backup', charset='utf8')
+    conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
     cur = conn.cursor()
     try: #每次对比数据库最新数据
         sql0 = 'use cp'
