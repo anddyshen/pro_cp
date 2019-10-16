@@ -296,7 +296,7 @@ def fetch_all():
     res_html = etree.HTML(response.text)
     max_page = res_html.xpath('//div/a[@class="end"]') 
 
-    for i in range(1,int(max_page[0].text)):
+    for i in range(1,int(max_page[0].text)+1):
         #print(f"第{i}页页眉\n\n")
         response = requests.get(f"https://www.17500.cn/widget/_ssq/kjlist/p/{i}.html")
         res_html = etree.HTML(response.text)
@@ -474,9 +474,9 @@ def update_opration():
         print("所有数据库清空完成！")
         fetch_all()
         print("重置所有数据并写入数据库成功！")
-        db_row_wt = fetch_all[0]
-        write_txt()
-        print("重置并写入TXT文本文件成功！准备写入数据库")
+        # db_row_wt = fetch_all[0]
+        # write_txt()
+        # print("重置并写入TXT文本文件成功！准备写入数据库")
     else:
         if db_compare_result == False:
             miss_kjqh = db_compare_result[1]
