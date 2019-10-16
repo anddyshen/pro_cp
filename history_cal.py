@@ -1,6 +1,6 @@
 import requests
 from lxml import etree
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from pandas import Series
 import pymysql
 import datetime
@@ -183,13 +183,13 @@ def count_num():
     s_blues = s_blues.value_counts()
     s_reds = Series(reds)
     s_reds = s_reds.value_counts()
-    print(s_blues)
-    print(s_reds)
+    print(f"红球出现次数：{s_blues}")
+    print(f"篮球出现次数：{s_reds}")
 
-    labels = s_blues.index.tolist()
-    sizes = s_blues.values.tolist()
-    rect = plt.bar(range(len(sizes)) , sizes , tick_label = labels)
-    plt.show()
+    # labels = s_blues.index.tolist()
+    # sizes = s_blues.values.tolist()
+    # rect = plt.bar(range(len(sizes)) , sizes , tick_label = labels)
+    # plt.show()
 
     endtime = datetime.datetime.now()
 
