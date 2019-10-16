@@ -14,9 +14,10 @@ backup_time = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 db_rewards_history_backup = 'rewards_history_backup_'+ backup_time
 db_ball_history_backup = 'ball_history_backup_'+ backup_time
 db_ball_detail_backup = 'ball_detail_backup_'+ backup_time
-conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', charset='utf8')
-cur = conn.cursor()
+#conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', charset='utf8')
 #conn = sqlite3.connect(r"C:\Users\Anddy\Documents\GitHub\MyPyFiles\Projects\more_ex\pro_ssq\db\ssq.db")
+conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
+cur = conn.cursor()
 
 def gen_confirm_code():
     str1 = ""
@@ -43,17 +44,47 @@ def write_txt():
 
 def db_clean():#测试时用于清空删除全部库后重置
     try: 
+        conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
+        cur = conn.cursor()
         sql = 'delete from rewards_history'
+        cur.execute(sql)
+        conn.commit()
+        print(f"rewards_history 数据库重置清空，成功\n\n")
+    except Exception as e:
+        print(e)
+        print(f"rewards_history 数据库清空失败\n\n")
+        conn.rollback()
+    finally:
+        cur.close()
+        conn.close()
+
+    try: 
+        conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
+        cur = conn.cursor()
         sql2 = 'delete from ball_history'
+        cur.execute(sql2)
+        conn.commit()
+        print(f"ball_history 数据库重置清空，成功\n\n")
+    except Exception as e:
+        print(e)
+        print(f" ball_history 数据库清空失败\n\n")
+        conn.rollback()
+    finally:
+        cur.close()
+        conn.close()
+
+    try: 
+        conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
+        cur = conn.cursor()
         sql3 = 'delete from ball_detail'
         cur.execute(sql)
         cur.execute(sql2)
         cur.execute(sql3)
         conn.commit()
-        print(f"测试前数据库重置清空，成功\n\n")
+        print(f" ball_detail 数据库重置清空，成功\n\n")
     except Exception as e:
         print(e)
-        print(f"数据库清空失败\n\n")
+        print(f"ball_detail 数据库清空失败\n\n")
         conn.rollback()
     finally:
         cur.close()
@@ -86,19 +117,22 @@ def db_compare():
     try: #每次对比数据库最新数据
         sql_sum = 'SELECT count(kjqh) FROM ball_history ' #数据库内记录总数
         sql_lastest_kjqh = "SELECT * FROM ball_history ORDER BY kjqh DESC LIMIT 1"#数据库内最新一期期数
-             
         cur.execute(sql_sum)
         conn.commit()
         result0 = cur.fetchone()
         cur.execute(sql_lastest_kjqh)
         conn.commit()
         db_total = cur.fetchall()
-        db_lastest_kjqh = db_total[0][1]
+        if len(db_total) != 0:
+            db_lastest_kjqh = db_total[0][1]
+        else:
+            db_lastest_kjqh = 0
 
         #print(f"对比奖期前数据库操作，成功\n\n")
     except Exception as e:
         print(e)
         print(f"数据库清空失败\n\n")
+
         conn.rollback()
     finally:
         cur.close()
@@ -280,6 +314,7 @@ def fetch_sp_page():#增量补齐开奖号码,抓取写入遗漏号码
         #如>30本页全部写入数据库后跳出，并前往下一页继续.如相差 ==1则前往官网抓取调取记录，返回值为0时，停止。
 
 def fetch_all():
+    page_max = db_compare_result[0]
     for i in range(1,page_max):
         #print(f"第{i}页页眉\n\n")
     
@@ -408,10 +443,9 @@ def fetch_all():
             if ((i-1)*30+k+1) % 60 == 0:
                 print(f"第{(i-1)*30+k+1}条内容，正添加至数据库 \n\n")# {db_row} \n\n")
             #conn = sqlite3.connect(r"./db/ssq.db")
-            #conn = sqlite3.connect(r"C:\mypyfiles\projects\more_ex\pro_ssq\db\ssq.db")
-            #conn = sqlite3.connect(r"C:\Users\Anddy\Documents\GitHub\MyPyFiles\Projects\more_ex\pro_ssq\db\ssq.db")
             #conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', port='3306',charset='utf8')
-            conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', charset='utf8')
+            #conn = pymysql.connect(host='127.0.0.1', user='root', password='abcd', database='cp', charset='utf8')
+            conn = pymysql.connect(host='18.163.33.208', user='webroot', password='abcd1234', database='cp', charset='utf8')
             cur = conn.cursor()
             cur1 = conn.cursor()
             cur2 = conn.cursor()
@@ -438,7 +472,7 @@ def fetch_all():
         #如>30本页全部写入数据库后跳出，并前往下一页继续.如相差 ==1则前往官网抓取调取记录，返回值为0时，停止。
     
         print(f"完成抓取第{i}页，并写入\n")
-        if i % 100 == 0:#隔几页停顿一次，>84为无需停顿
+        if i % 1 == 0:#隔几页停顿一次，>84为无需停顿
             input("按回车键继续\n")
 
     return db_row
@@ -450,18 +484,19 @@ def update_opration():
     confirm_code = gen_confirm_code()
     confirm_code2 = gen_confirm_code()
     print("将进行数据库清空及全部重置下载操作，按其他任意键则下载补全最新遗漏数据 \n")
-    input1 = input(f"重置确认码为 【{confirm_code}】,请输入随机确认码：")
+    print(f"重置确认码为 【{confirm_code}】")
+    input1 = input(f"请输入随机确认码：")
     if input1 == confirm_code:
         print("将进行重置数据库工作，先进行数据库备份！")
         db_backup()
         print("数据库备份完成，开始清空数据库！")
         db_clean()
-        print("清空数据库完成！")
+        print("所有数据库清空完成！")
+        fetch_all()
+        print("重置所有数据并写入数据库成功！")
         db_row_wt = fetch_all[0]
         write_txt()
         print("重置并写入TXT文本文件成功！准备写入数据库")
-        fetch_all()
-        print("重置所有数据并写入数据库成功！")
     else:
         if db_compare_result == False:
             miss_kjqh = db_compare_result[1]
@@ -480,9 +515,9 @@ def update_opration():
                 exit()
         
 
-update_opration()
-
-
 endtime = datetime.datetime.now()
 total_times = (endtime - starttime).seconds 
 print(f"本次执行共耗时： {total_times} 秒")  
+
+if __name__ == "__main__":
+    update_opration()

@@ -8,6 +8,15 @@
             "port": 3306,
             "server": "localhost",
             "username": "root"
+        },
+        {
+            "database": "cp",
+            "dialect": "MySQL",
+            "name": "18.163.33.208",
+            "password": "abcd1234",
+            "port": 3306,
+            "server": "18.163.33.208",
+            "username": "webroot"
         }
     ]
 }
